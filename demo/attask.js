@@ -2,6 +2,8 @@ try {
 	var doProcess = function() {
 		process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0
 		var http = require('https');
+		var taskCompleteDelay = 100;
+		var sessionID = '';
 
 		var options = {
 			host : 'pharmaref1.attask-ondemand.com',
@@ -14,13 +16,12 @@ try {
 			res.setEncoding('utf8');
 			res.on('data', function(chunk) {
 				var json = JSON.parse(chunk);
-				var sessionID = json.data.sessionID;
-				getDroneTasks(sessionID);
+				sessionID = json.data.sessionID;
+				getDroneTasks();
 			});
 		}).end();
 
-		var taskCompleteDelay = 100;
-		var getDroneTasks = function(sessionID) {
+		var getDroneTasks = function() {
 			var options = {
 				host : 'pharmaref1.attask-ondemand.com',
 				// port : 443,
@@ -53,8 +54,7 @@ try {
 			console.log('completing');
 			var options = {
 				host : 'pharmaref1.attask-ondemand.com',
-				// port :443,
-				path : 'https://pharmaref1.attask-ondemand.com/attask/api/task/' + task[i].ID + '?updates={status:"CPL"}&sessionID=' + sessionID,
+				path : 'https://pharmaref1.attask-ondemand.com/attask/api/task/' + tasks[i].ID + '?fields=name,status&updates={status:"CUR"}&sessionID=' + sessionID,
 				method : 'PUT'
 			};
 
@@ -65,7 +65,7 @@ try {
 					console.log(chunk);
 				});
 				res.on('end', function() {
-					if (i < tasks.length - 1) {
+					if (i < tasks.length - 2) {
 						setTimeout(function() {
 							completeTask(i + 1, tasks);
 						}, taskCompleteDelay);
