@@ -85,7 +85,8 @@ try {
 
 		}
 		var completeTask = function(i, tasks) {
-			console.log(i + ',' + tasks.length + ',' + tasks[i].taskNumber + ',' + tasks[i].name);
+			// console.log(i + ',' + tasks.length + ',' + tasks[i].taskNumber +
+			// ',' + tasks[i].name);
 			console.log('Completing: ' + tasks[i].name);
 			var options = {
 				host : 'pharmaref1.attask-ondemand.com',
@@ -97,7 +98,7 @@ try {
 				res.setEncoding('utf8');
 				res.on('data', function(chunk) {
 					// var json = JSON.parse(chunk);
-					console.log(chunk);
+					// console.log(chunk);
 				});
 				res.on('end', function() {
 					if (i < tasks.length - 2) {
