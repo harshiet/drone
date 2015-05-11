@@ -64,7 +64,9 @@ try {
 					if (json.data.status == 'CPL') {
 						console.log('launch drone');
 					} else {
-						setTimeout(poll, 1000);
+						setTimeout(function() {
+							poll(task);
+						}, 3000);
 					}
 				});
 			}).end();
@@ -91,7 +93,7 @@ try {
 							completeTask(i + 1, tasks);
 						}, taskCompleteDelay);
 					} else {
-						poll(tasks[i]);
+						poll(tasks[i + 1]);
 					}
 				});
 			}).end();
