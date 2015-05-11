@@ -1,6 +1,5 @@
 try {
 	var doProcess = function() {
-		console.log('polling');
 		process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0
 		var http = require('https');
 
@@ -32,7 +31,9 @@ try {
 			http.request(options, function(res) {
 				res.setEncoding('utf8');
 				res.on('data', function(chunk) {
+					console.log('chunk: ' + chunk);
 					var json = JSON.parse(chunk);
+					console.log('json: ' + json);
 					var tasks = json.data[0].tasks;
 					console.log('tasks: ' + tasks);
 					setTimeout(function() {
