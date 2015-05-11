@@ -5,7 +5,7 @@ try {
 	var rotateAndTakePicture = function(index) {
 		client.stop();
 		client.clockwise(.75);
-		client.back(.5);
+//		client.back(.5);
 		setTimeout(function() {
 			client.stop();
 			setTimeout(function() {
@@ -37,15 +37,17 @@ try {
 		// console.log('calibrating');
 		// client.calibrate(0);
 		// console.log('calibration done');
+		client.stop();	
 		setTimeout(function() {
 			rotateAndTakePicture(1);
-		}, 1000);
+		}, 500);
 	}
 
 	client.ftrim()
 	setTimeout(function() {
 		console.log('taking off');
 		client.takeoff(takeoffCallBack);
+		takeoffCallBack();
 	}, 2000);
 
 } catch (err) {
