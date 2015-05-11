@@ -19,7 +19,7 @@ try {
 			});
 		}).end();
 
-		var taskCompleteDelay = 2000;
+		var taskCompleteDelay = 100;
 		var getDroneTasks = function(sessionID) {
 			var options = {
 				host : 'pharmaref1.attask-ondemand.com',
@@ -27,46 +27,53 @@ try {
 				path : 'https://pharmaref1.attask-ondemand.com/attask/api/project/search?fields=tasks&name=Drone%20Launch&sessionID=' + sessionID,
 				method : 'GET'
 			};
-
+			var str = '';
 			http.request(options, function(res) {
 				res.setEncoding('utf8');
 				res.on('data', function(chunk) {
-					console.log('chunk: ' + chunk);
-					var json = JSON.parse(chunk);
+					str += chunk;
+				});
+
+				res.on('end', function() {
+					console.log('str: ' + str);
+					var json = JSON.parse(str);
 					console.log('json: ' + json);
 					var tasks = json.data[0].tasks;
 					console.log('tasks: ' + tasks);
 					setTimeout(function() {
-						completeTask(i, tasks);
+						completeTask(0, tasks);
 					}, taskCompleteDelay);
 
-				});
+				})
 			}).end();
 		}
 
 		var completeTask = function(i, tasks) {
-			console.log(i + ',' + tasks.length + ',' + tasks[i]);
-			if (i < tasks.length) {
-				console.log('complete');
-				setTimeout(function() {
-					completeTask(i + 1, tasks);
-				}, taskCompleteDelay);
+			console.log(i + ',' + tasks.length + ',' + tasks[i].name);
+			console.log('completing');
+			var options = {
+				host : 'pharmaref1.attask-ondemand.com',
+				// port :443,
+				path : 'https://pharmaref1.attask-ondemand.com/attask/api/task/' + task[i].ID + '?updates={status:"CPL"}&sessionID=' + sessionID,
+				method : 'PUT'
+			};
 
-			} else {
-				console.log('last task');
-			}
-			/*
-			 * var options = { host : 'pharmaref1.attask-ondemand.com', // port :
-			 * 443, path :
-			 * 'https://pharmaref1.attask-ondemand.com/attask/api/task/' +
-			 * task[i].ID + '?updates={status:"CPL"}&sessionID=' + sessionID,
-			 * method : 'PUT' };
-			 * 
-			 * http.request(options, function(res) { res.setEncoding('utf8');
-			 * res.on('data', function(chunk) { var json = JSON.parse(chunk);
-			 * console.log(json); }); }).end();
-			 */
-
+			http.request(options, function(res) {
+				res.setEncoding('utf8');
+				res.on('data', function(chunk) {
+					// var json = JSON.parse(chunk);
+					console.log(chunk);
+				});
+				res.on('end', function() {
+					if (i < tasks.length - 1) {
+						setTimeout(function() {
+							completeTask(i + 1, tasks);
+						}, taskCompleteDelay);
+					} else {
+						console.log('last task');
+					}
+				});
+			}).end();
 		}
 	}
 	doProcess();
