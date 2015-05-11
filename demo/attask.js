@@ -49,12 +49,33 @@ try {
 			}).end();
 		}
 
-		var completeTask = function(i, tasks) {
-			console.log(i + ',' + tasks.length + ',' + tasks[i].name);
-			console.log('completing');
+		var poll = function(task) {
+			console.log('Polling: ' + task.name);
 			var options = {
 				host : 'pharmaref1.attask-ondemand.com',
-				path : 'https://pharmaref1.attask-ondemand.com/attask/api/task/' + tasks[i].ID + '?fields=name,status&updates={status:"CUR"}&sessionID=' + sessionID,
+				// port : 443,
+				path : 'https://pharmaref1.attask-ondemand.com/attask/api/task/' + task.ID + '?fields=status,name&sessionID=' + sessionID,
+				method : 'GET'
+			};
+			http.request(options, function(res) {
+				res.setEncoding('utf8');
+				res.on('data', function(chunk) {
+					var json = JSON.parse(chunk);
+					if (json.data.status == 'CPL') {
+						console.log('launch drone');
+					} else {
+						setTimeout(poll, 1000);
+					}
+				});
+			}).end();
+
+		}
+		var completeTask = function(i, tasks) {
+			console.log(i + ',' + tasks.length + ',' + tasks[i].name);
+			console.log('Completing: ' + tasks[i].name);
+			var options = {
+				host : 'pharmaref1.attask-ondemand.com',
+				path : 'https://pharmaref1.attask-ondemand.com/attask/api/task/' + tasks[i].ID + '?fields=name,status&updates={status:"CPL"}&sessionID=' + sessionID,
 				method : 'PUT'
 			};
 
@@ -65,12 +86,12 @@ try {
 					console.log(chunk);
 				});
 				res.on('end', function() {
-					if (i < tasks.length - 2) {
+					if (i < tasks.length - 84) {
 						setTimeout(function() {
 							completeTask(i + 1, tasks);
 						}, taskCompleteDelay);
 					} else {
-						console.log('last task');
+						poll(tasks[i]);
 					}
 				});
 			}).end();
