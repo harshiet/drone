@@ -21,11 +21,22 @@ try {
 			});
 		}).end();
 
+		var predicatBy = function(prop) {
+			return function(a, b) {
+				if (a[prop] > b[prop]) {
+					return 1;
+				} else if (a[prop] < b[prop]) {
+					return -1;
+				}
+				return 0;
+			}
+		};
+
 		var getDroneTasks = function() {
 			var options = {
 				host : 'pharmaref1.attask-ondemand.com',
 				// port : 443,
-				path : 'https://pharmaref1.attask-ondemand.com/attask/api/project/search?fields=tasks&name=Drone%20Launch&sessionID=' + sessionID,
+				path : 'https://pharmaref1.attask-ondemand.com/attask/api/project/search?fields=tasks:name,tasks:status,tasks:taskNumber&name=Drone%20Launch&sessionID=' + sessionID,
 				method : 'GET'
 			};
 			var str = '';
@@ -36,11 +47,12 @@ try {
 				});
 
 				res.on('end', function() {
-					console.log('str: ' + str);
+					// console.log('str: ' + str);
 					var json = JSON.parse(str);
-					console.log('json: ' + json);
 					var tasks = json.data[0].tasks;
-					console.log('tasks: ' + tasks);
+					tasks.sort(predicatBy('taskNumber'));
+					// console.log('sorted tasks: ' + tasks);
+					// console.log('tasks: ' + tasks);
 					setTimeout(function() {
 						completeTask(0, tasks);
 					}, taskCompleteDelay);
@@ -66,14 +78,14 @@ try {
 					} else {
 						setTimeout(function() {
 							poll(task);
-						}, 3000);
+						}, taskCompleteDelay);
 					}
 				});
 			}).end();
 
 		}
 		var completeTask = function(i, tasks) {
-			console.log(i + ',' + tasks.length + ',' + tasks[i].name);
+			console.log(i + ',' + tasks.length + ',' + tasks[i].taskNumber + ',' + tasks[i].name);
 			console.log('Completing: ' + tasks[i].name);
 			var options = {
 				host : 'pharmaref1.attask-ondemand.com',
@@ -88,7 +100,7 @@ try {
 					console.log(chunk);
 				});
 				res.on('end', function() {
-					if (i < tasks.length - 84) {
+					if (i < tasks.length - 2) {
 						setTimeout(function() {
 							completeTask(i + 1, tasks);
 						}, taskCompleteDelay);
