@@ -2,7 +2,7 @@ try {
 	var doProcess = function() {
 		process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0
 		var http = require('https');
-		var taskCompleteDelay = 100;
+		var taskCompleteDelay = 1000;
 		var sessionID = '';
 
 		var options = {
@@ -87,7 +87,7 @@ try {
 		var completeTask = function(i, tasks) {
 			// console.log(i + ',' + tasks.length + ',' + tasks[i].taskNumber +
 			// ',' + tasks[i].name);
-			console.log('Completing: ' + tasks[i].name);
+			console.log('Completing: [' + tasks[i].taskNumber + '] ' + tasks[i].name);
 			var options = {
 				host : 'pharmaref1.attask-ondemand.com',
 				path : 'https://pharmaref1.attask-ondemand.com/attask/api/task/' + tasks[i].ID + '?fields=name,status&updates={status:"CPL"}&sessionID=' + sessionID,
